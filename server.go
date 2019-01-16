@@ -165,7 +165,7 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, responseHeade
 	// Negotiate PMCE
 	var (
 		compress        bool
-		contextTakeover bool
+		contextTakeover bool = true
 	)
 	if u.EnableCompression {
 		for _, ext := range parseExtensions(r.Header) {
@@ -174,9 +174,11 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request, responseHeade
 			if ext[""] == "permessage-deflate" {
 				compress = true
 			}
-
-			if _, ok := ext["client_max_window_bits"]; ok {
-				contextTakeover = true
+			if _, ok := ext["client_no_context_takeover"]; ok {
+				contextTakeover = false
+			}
+			if _, ok := ext["server_no_context_takeover"]; ok {
+				contextTakeover = false
 			}
 		}
 	}
